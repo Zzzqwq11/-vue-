@@ -3,7 +3,8 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "dev": "vite",
+    "dev-1": "vite",
+    "dev": "vite --host 127.0.0.1 --port 8000",
     "build": "vite build",
     "generate": "vite-ssg build",
     "preview": "vite preview",
@@ -31,3 +32,4 @@
   },
   "license": "MIT"
 }
+
