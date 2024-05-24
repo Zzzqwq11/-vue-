@@ -4,12 +4,8 @@
   "version": "0.1.0",
   "scripts": {
     "dev-1": "vite",
-<<<<<<< HEAD
     "dev-2": "vite --host 127.0.0.1 --port 8000",
     "dev": "vite --host 127.0.0.1 --port 3000",
-=======
-    "dev": "vite --host 127.0.0.1 --port 8000",
->>>>>>> 490301dea23c28457c89db24d3879edab8f95432
     "build": "vite build",
     "generate": "vite-ssg build",
     "preview": "vite preview",
