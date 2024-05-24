@@ -55,6 +55,7 @@ const router = createRouter({
     routes,
 })
 
+<<<<<<< HEAD
 // // ·������
 // router.beforeEach((to) => {
 //    // ����token�ж��Ƿ��¼
@@ -66,6 +67,19 @@ const router = createRouter({
 //    else if (!token && to.path !== '/login')
 //        return "/login";
 // });
+=======
+// 路由守卫
+router.beforeEach((to) => {
+    // 根据token判断是否登录
+    let token = localStorage.getItem('Token');
+    // 有token但是访问的是登录页 => 强制去首页
+    if (token && to.path === '/login')
+       return "/home";
+   // 没有token但是访问的是其他 => 强制去登录页
+    else if (!token && to.path !== '/login')
+        return "/login";
+});
+>>>>>>> 490301dea23c28457c89db24d3879edab8f95432
 
 
 export default router;

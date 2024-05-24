@@ -6,14 +6,21 @@
 - node
 - git
 
+
 请求体：所有接口的媒体类型为 JSON。请求头：除了登陆页面的没有设置，其他接口的请求头已经设置为 
 Authorization: `Bearer ${token}`，其中const token = localStorage.getItem('token');
+=======
+
 
 > 登陆页面
 - 已设置后端api/login
 - 没有请求头 
 - 发送一个POST请求到后端的API端点，携带用户名和密码作为请求体。
+
 - 已传入后端参数status=200，表示登录成功，
+=======
+- 已传入后端参数code=200，表示登录成功，
+
 - 登陆成功后，后端应该返回一个token，前端已存储在localStorage中
 
 
