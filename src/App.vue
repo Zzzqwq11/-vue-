@@ -12,7 +12,7 @@
         <div class="logo-container">
           <img src="@/assets/logo.png" alt="Logo" class="logo" />
         </div>
-        <el-menu-item index="1" ><RouterLink to="/home">首页</RouterLink></el-menu-item>
+        <el-menu-item index="1" ><RouterLink to="/">首页</RouterLink></el-menu-item>
         <el-menu-item index="2" ><RouterLink to="/service">服务</RouterLink></el-menu-item>
         <el-menu-item index="3" ><RouterLink to="/contact">联系我们</RouterLink></el-menu-item>
         <el-menu-item index="4" ><RouterLink to="/login">登录</RouterLink></el-menu-item>

@@ -3,7 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "dev": "vite",
+    "dev-1": "vite",
+    "dev-2": "vite --host 127.0.0.1 --port 8000",
+    "dev": "vite --host 127.0.0.1 --port 3000",
     "build": "vite build",
     "generate": "vite-ssg build",
     "preview": "vite preview",

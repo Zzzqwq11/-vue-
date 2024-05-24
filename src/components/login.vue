@@ -27,6 +27,10 @@ const form = ref({
   password: ''
 });
 
+/*后端要求在除了login页面，在请求头中加入token字段，是因为它们希望对访问其API的用户进行身份验证。这通常是为了保护API免受未授权访问，
+确保只有经过验证的用户才能访问敏感数据或执行特定操作。
+在后端定义的login接口中，当用户成功登录时，会返回一个token，这个token是用户身份验证的凭证。*/
+
 // 设置请求头，如果API需要其他特殊头，请添加它们
 const headers = {
   'Content-Type': 'application/json'
@@ -34,9 +38,12 @@ const headers = {
 
 const login = async () => {
   try {
-    const response = await axios.post('localhost:8080/login', form.value, { headers });
+    //console.log(form.value)
+    const response = await axios.post('http://localhost:8000/login/', form.value, { headers });
+    console.log(form.value)
+    console.log(response.data)
     // 根据后端返回的数据结构调整这里的判断逻辑
-    if (response.data.code === 200) {
+    if (response.data.status === '200') {
       // 登录成功，解析后端返回的数据
       // 存储token，例如：
       localStorage.setItem('token', response.data.token);
@@ -44,7 +51,7 @@ const login = async () => {
       router.push('/see');
     } else {
       // 登录失败，显示错误消息
-      alert('用户名或密码错误');
+      alert(response.data.message || '用户名或者密码错误');
     }
   } catch (error) {
     // 错误处理
