@@ -1,31 +1,68 @@
 <template>
   <div class="login-container">
-    <el-form :model="form" ref="formRef" @submit.native.prevent="login" class="login-form">
+    <el-form :model="form" ref="formRef" class="login-form" :rules="rules">
+      <el-alert v-if="showAlert" :closable="true" type="error" title="登录失败" description="用户名或密码错误，请重试。" show-icon
+       effect="dark" center @close="showAlert = false" class="custom-alert"></el-alert>
       <el-form-item label="用户名" prop="username">
-        <el-input v-model="form.username" required></el-input>
+        <el-input v-model="form.username" placeholder="请输入用户名" required></el-input>
       </el-form-item>
       <el-form-item label="密&nbsp;&nbsp;&nbsp;码" prop="password">
-        <el-input type="password" v-model="form.password" required></el-input>
+        <el-input type="password" v-model="form.password" placeholder="请输入密码" required></el-input>
       </el-form-item>
+
       <el-form-item>
-        <el-button type="primary" @click="login">登录进入可视化页面</el-button>
+        <el-button type="primary" @click="login" >登录进入可视化页面</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
+import type { FormInstance, FormRules,ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router';
 import { ElForm, ElFormItem, ElInput, ElButton } from 'element-plus';
 import axios from 'axios';
 
 const router = useRouter();
 
+// 添加一个响应式变量来控制警告弹窗的显示
+const showAlert = ref(false);
 // 定义响应式变量来存储用户名和密码
 const form = ref({
-  username: '',
-  password: ''
+  username: "",
+  password: ""
 });
+
+// 定义表单实例引用
+const formRef = ref<FormInstance>(null)
+
+// 定义表单验证规则
+const rules = ref({
+username: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
+password: [{ required: true, message: '密码不能为空', trigger: 'blur' }]
+});
+
+// 用户名验证为空
+const validateUsername = (rule: any, value: any, callback: any) => {
+  if (!value) {
+    callback(new Error('用户名不能为空'));
+  } else {
+    callback();   // 验证通过
+  }
+};
+
+// 密码验证为空
+const validatePassword = (rule: any, value: any, callback: any) => {
+  if (!value) {
+    callback(new Error('密码不能为空'));
+  } else {
+    callback();  // 验证通过
+  }
+};
+
+// 更新rules以使用自定义验证器
+rules.value.username.push({ validator: validateUsername, trigger: 'blur' });
+rules.value.password.push({ validator: validatePassword, trigger: 'blur' });
 
 /*后端要求在除了login页面，在请求头中加入token字段，是因为它们希望对访问其API的用户进行身份验证。这通常是为了保护API免受未授权访问，
 确保只有经过验证的用户才能访问敏感数据或执行特定操作。
@@ -37,28 +74,40 @@ const headers = {
 };
 
 const login = async () => {
-  try {
-    //console.log(form.value)
-    const response = await axios.post('http://localhost:8000/login/', form.value, { headers });
-    console.log(form.value)
-    console.log(response.data)
-    // 根据后端返回的数据结构调整这里的判断逻辑
-    if (response.data.status === '200') {
-      // 登录成功，解析后端返回的数据
-      // 存储token，例如：
-      localStorage.setItem('token', response.data.token);
-      // 重定向到可视化界面
-      router.push('/see');
-    } else {
-      // 登录失败，显示错误消息
-      alert(response.data.message || '用户名或者密码错误');
+  if (!formRef.value)   return;
+  // 直接检查用户名和密码是否为空
+  if (!form.value.username || !form.value.password) {
+    ElMessage.error('用户名或密码为空');
+    return;
+  }
+  // 在提交前进行表单验证
+  const valid = await formRef.value.validate();
+  if (valid) {
+    try {
+      // 登录请求逻辑
+      console.log(form.value)
+      const response = await axios.post('http://127.0.0.1:8000/login/', form.value, { headers });
+      console.log(response.data);
+      // 根据后端返回的数据结构调整这里的判断逻辑
+      if (response.data.status === '200') {
+        // 登录成功，解析后端返回的数据
+        localStorage.setItem('token', response.data.token);
+        router.push('/see');
+      } else {
+        // 登录失败，显示警告弹窗
+        showAlert.value = true;
+        // 可以设置一个定时器在一段时间后自动关闭弹窗
+        setTimeout(() => { showAlert.value = false; }, 5000); // 5秒后自动关闭
+      }
+    } catch (error) {
+      console.error('登录请求失败', error);
+      alert('登录请求失败：' + error.message);
     }
-  } catch (error) {
-    // 错误处理
-    console.error('登录请求失败', error);
-    alert('登录请求失败：' + error.message);
+  } else {
+    console.log('表单验证失败!');
   }
 };
+
 </script>
 
 <style scoped>
@@ -92,4 +141,12 @@ const login = async () => {
   margin-top: 20px;
 }
 
+/* 自定义 ElAlert 组件的样式 */
+.custom-alert {
+  /* 在这里添加你的自定义样式 */
+  background-color: #f8d7da; /* 示例背景色 */
+  color: #721c24; /* 示例文字色 */
+  border: 1px solid #f5c6cb; /* 示例边框样式 */
+  margin-bottom: 20px;
+}
 </style>

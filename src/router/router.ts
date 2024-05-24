@@ -5,6 +5,9 @@ import login from '../components/login.vue'
 import home  from '../components/home.vue'
 import service   from '../components/service.vue'
 import contact   from '../components/contact.vue'
+import register  from '../components/register.vue'
+import usersettings  from '../components/usersettings.vue'
+import help   from '../components/help.vue'
 
 const routes = [
     {
@@ -22,7 +25,7 @@ const routes = [
     {
         path: '/',
         component:home
-        //,meta: { requiresAuth: true } // ç¤ºä¾‹ï¼šè¡¨ç¤ºæ­¤é¡µé¢éœ€è¦éªŒè¯ç™»å½•
+        //,meta: { requiresAuth: true } // Ê¾Àý£º±íÊ¾´ËÒ³ÃæÐèÒªÑéÖ¤µÇÂ¼
     },
     {
         path: '/service',
@@ -31,6 +34,18 @@ const routes = [
     {
         path: '/contact',
         component:contact
+    },
+    {
+        path: '/register',
+        component:register
+    },
+    {
+        path: '/usersettings',
+        component:usersettings
+    },
+    {
+        path: '/help',
+        component:help
     }
 ]
 
@@ -40,17 +55,17 @@ const router = createRouter({
     routes,
 })
 
-// è·¯ç”±å®ˆå«
-router.beforeEach((to) => {
-   // æ ¹æ®tokenåˆ¤æ–­æ˜¯å¦ç™»å½•
-   let token = localStorage.getItem('Token');
-   // æœ‰tokenä½†æ˜¯è®¿é—®çš„æ˜¯ç™»å½•é¡µ => å¼ºåˆ¶åŽ»é¦–é¡µ
-   if (token && to.path === '/login')
-      return "/home";
-  // æ²¡æœ‰tokenä½†æ˜¯è®¿é—®çš„æ˜¯å…¶ä»– => å¼ºåˆ¶åŽ»ç™»å½•é¡µ
-   else if (!token && to.path !== '/login')
-       return "/login";
-});
+// // Â·ÓÉÊØÎÀ
+// router.beforeEach((to) => {
+//    // ¸ù¾ÝtokenÅÐ¶ÏÊÇ·ñµÇÂ¼
+//    let token = localStorage.getItem('Token');
+//    // ÓÐtokenµ«ÊÇ·ÃÎÊµÄÊÇµÇÂ¼Ò³ => Ç¿ÖÆÈ¥Ê×Ò³
+//    if (token && to.path === '/login')
+//       return "/home";
+//   // Ã»ÓÐtokenµ«ÊÇ·ÃÎÊµÄÊÇÆäËû => Ç¿ÖÆÈ¥µÇÂ¼Ò³
+//    else if (!token && to.path !== '/login')
+//        return "/login";
+// });
 
 
 export default router;

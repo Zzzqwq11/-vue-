@@ -20,9 +20,10 @@
   },
   "devDependencies": {
     "@iconify-json/ep": "^1.1.15",
+    "@testing-library/vue": "^8.1.0",
     "@types/node": "^20.11.30",
     "@vitejs/plugin-vue": "^5.0.4",
-    "sass": "^1.72.0",
+    "@vue/test-utils": "^2.4.6",
     "typescript": "^5.4.3",
     "unocss": "^0.58.6",
     "unplugin-auto-import": "^0.17.6",
