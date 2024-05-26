@@ -22,7 +22,7 @@
         <router-view></router-view>
     </main>
     <footer class="text-center">
-      &copy; 2024 data-co-pliot： 王宇祥；邹俊；将文强；孙兴；童鑫
+      &copy; 2024 data-co-pliot： 王宇祥；邹俊；蒋文强；孙兴；童鑫
     </footer>
   </div>
 </template>

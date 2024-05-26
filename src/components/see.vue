@@ -32,8 +32,10 @@
           <el-col :span="24">
             <el-card shadow="never" style="overflow: hidden;">
               <div slot="header">可视化图表</div>
-              <div id="chart-container" style="height: 400px;">
+                <!--  ref 来引用图表的容器元素 -->
+              <div ref="chart-container" style="height: 400px;">
                 <!-- 图表内容 -->
+                  <v-chart :option="chartOption" />
               </div>
             </el-card>
           </el-col>
@@ -45,12 +47,24 @@
 </template>
 
 <script setup>
-import { defineComponent, ref } from 'vue';
+import { defineComponent } from 'vue';
 import axios from 'axios';
 
-// 引入 echarts 核心模块，核心模块提供了 echarts 使用必须要的接口。
-import * as echarts from 'echarts';
 import { useRouter } from 'vue-router';
+
+    import { use } from "echarts/core";
+    import * as echarts from 'echarts';
+    import { CanvasRenderer } from "echarts/renderers";
+    import { BarChart } from "echarts/charts";
+    import {
+        TitleComponent,
+        TooltipComponent,
+        LegendComponent,
+        GridComponent
+    } from "echarts/components";
+    import VChart, { THEME_KEY } from "vue-echarts";
+    import { ref, provide, onMounted, computed } from "vue";
+
 // 定义navigateTo方法
 const router = useRouter();
 const navigateTo = (path) => {
@@ -73,16 +87,6 @@ const validateSql = () => {
 };
 
 const tableData = ref([]);// 假设tableData存储查询结果，
-const chartContainer = ref(null);
-
-const initChart = () => {
-  const chart = echarts.init(chartContainer.value);
-  const option = {
-    // ... 你的图表配置
-  };
-  chart.setOption(option);
-};
-
 // 定义headers为响应式的ref，用于存储动态生成的表头信息
 const tableHeaders = ref([]);
 // 定义一个函数来生成表头信息
@@ -97,6 +101,93 @@ const generateHeaders = (data) => {
   }
   return []; // 如果没有数据，返回空数组
 };
+const chartContainer = ref(null);
+const chartOption = ref({});
+use([
+  CanvasRenderer,
+  BarChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent
+]);
+
+provide(THEME_KEY, "dark");
+
+// 根据tableData生成图表配置
+const generateChartOption = () => {
+  if (tableData.value.length > 0) {
+    const xAxisData = tableHeaders.value.map(header => header.label);
+    const seriesData = tableHeaders.value.map(header => {
+       return tableData.value.reduce((count, row) => {
+           // 只有当row[header.key]存在且不为空时，才会计数
+          if (row[header.key] !== null && row[header.key] !== undefined && row[header.key] !== '') {
+            return count + 1;
+              }
+            return count;
+          }, 0); // 初始计数为0
+      });
+
+    chartOption.value = {
+      title: {
+        text: 'User Data Statistics',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        }
+      },
+      legend: {
+        data: xAxisData
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'value'
+      },
+      yAxis: {
+        type: 'category',
+        data: xAxisData
+      },
+      series: [
+        {
+          name: 'Count',
+          type: 'bar',
+          data: seriesData,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#83bff6' },
+              { offset: 0.5, color: '#188df0' },
+              { offset: 1, color: '#188df0' }
+            ])
+          }
+        }
+      ]
+    };
+  }
+};
+
+
+// 初始化图表
+const initChart = () => {
+  if (chartContainer.value) {
+    const chart = echarts.init(chartContainer.value);
+    chart.setOption(chartOption.value);
+  }
+};
+onMounted(() => {
+    generateChartOption();
+    initChart();
+});
+
+
+
 // 发送查询请求
 const sendQuery = async () => {
    //在 login.vue 中通过 localStorage.setItem('token', response.data.token); 将后端返回的令牌存储在本地存储中，

@@ -23,7 +23,8 @@ Authorization: `Bearer ${token}`，其中const token = localStorage.getItem('tok
 - 登陆成功后，后端应该返回一个token，前端已存储在localStorage中
 
 
-> 可视化页面的大模型查询部分
+> 可视化页面
+## 大模型查询部分
 - 已设置后端api/query/
 - 请求头 已包含token
 - 发送一个POST请求到后端的API端点，将Vue实例中的sql变量的值作为user_input字段发送给服务器。
@@ -32,15 +33,14 @@ Authorization: `Bearer ${token}`，其中const token = localStorage.getItem('tok
 - 已解决动态渲染
 
 
-> 可视化页面的可视化图表部分
-- 待开工
+## 可视化图表部分
+- 前端可以显示表格数据的图像可视化
 
 > 用户个人信息页面
+- 登录进入之后，点击个人设置，进入用户个人信息
 - 已设置后端api
-- 已发送一个get请求到后端的API端点，显示信息
-- 已发送一个put请求到后端的API端点，修改信息
-
-
+- 已发送一个get请求到后端的API端点，可以显示用户信息
+- 已发送一个put请求到后端的API端点，可以修改用户信息
 - 登陆成功后，后端应该返回一个token，前端已存储在localStorage中
 ## 安装
 
