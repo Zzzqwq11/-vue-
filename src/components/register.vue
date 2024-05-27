@@ -18,7 +18,7 @@
                 <el-card shadow="never" style="overflow: hidden;">
                     <div slot="header">可视化图表</div>
                     <div ref="chartContainer" style="height: 400px;">
-                        <v-chart :option="chartOption" />
+                        <v-chart :option="chartOption" autoresize/>
                     </div>
                 </el-card>
             </el-col>

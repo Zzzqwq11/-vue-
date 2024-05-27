@@ -32,10 +32,8 @@
           <el-col :span="24">
             <el-card shadow="never" style="overflow: hidden;">
               <div slot="header">可视化图表</div>
-                <!--  ref 来引用图表的容器元素 -->
               <div style="height: 400px;" ref="chartContainer">
-                <!-- 图表内容 -->
-                  <v-chart :option="chartOption" />
+                <v-chart :option="chartOption" autoresize />
               </div>
             </el-card>
           </el-col>
@@ -63,7 +61,7 @@ import { useRouter } from 'vue-router';
         GridComponent
     } from "echarts/components";
     import VChart, { THEME_KEY } from "vue-echarts";
-    import { ref, provide, onMounted, onUnmounted, computed, nextTick } from "vue";
+    import { ref, provide, watch, onMounted, onUnmounted, computed, nextTick } from "vue";
 
 // 定义navigateTo方法
 const router = useRouter();
@@ -172,50 +170,38 @@ const generateChartOption = () => {
   }
 };
 
-
-    // 初始化图表
-    const initChart = () => {
-        if (chartContainer.value) {
-            const chart = echarts.init(chartContainer.value);
-            chart.setOption(chartOption.value);
-        }
-    };
-    onMounted(() => {
-        generateChartOption();
-        initChart();
-    });
+//定义一个变量来持有图表实例，这样我们可以在需要时销毁它
+let chartInstance = null;
+const initChart = () => {
+  if (chartInstance) {
+    chartInstance.dispose(); // 销毁旧实例
+  }
+  if (chartContainer.value) {
+    chartInstance = echarts.init(chartContainer.value);
+    chartInstance.setOption(chartOption.value);
+  }
+};
 
 
 // 发送查询请求
 const sendQuery = async () => {
-    const response = {
-    "status": "200",
-    "sql_queries": [
-        {
-            "UserID": 1,
-            "Username": "root",
-            "Password": "root123",
-            "Email": "root@example.com",
-            "Role": ""
-        },
-        {
-            "UserID": 2,
-            "Username": "root",
-            "Password": "root123",
-            "Email": "root@example.com",
-            "Role": "管理员"
-        },
-        {
-            "UserID": 3,
-            "Username": "test",
-            "Password": "test123",
-            "Email": "test@test.com",
-            "Role": "普通用户"
-        }
-    ]
-};
-    console.log(response)
-    const { status, sql_queries } = response;
+   //在 login.vue 中通过 localStorage.setItem('token', response.data.token); 将后端返回的令牌存储在本地存储中，
+   //然后在 see.vue 或任何其他需要使用令牌的组件中通过 const token = localStorage.getItem('token'); 来获取这个令牌。
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('Token not found, 请先登录.');
+    return;  //没有token，提前终止请求
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',  // 指定请求体的媒体类型为 JSON，以便服务器知道如何解析请求内容
+    Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
+  };
+  try {
+    console.log(sql.value)
+    const response = await axios.post('http://localhost:8000/query/', { user_input: sql.value }, { headers });
+    console.log(response.data)
+    const { status, sql_queries } = response.data;
     // 打印status和sql_queries
     console.log('Status:', status);
     console.log('SQL Queries:', sql_queries);
@@ -226,17 +212,34 @@ const sendQuery = async () => {
     console.log('Table Headers:', tableHeaders.value);
     console.log('Table Data:', tableData.value);
       // 确保图表容器存在并且数据已更新后，初始化图表
-      // 在sendQuery方法中
-      await nextTick(); // 确保DOM更新
       initChart();// 重新初始化图表
-      console.log("好")
     } else {
       alert('status 不为200查询失败');
     }
+  } catch (error) {
+    console.error('查询请求失败', error);
+    alert('查询请求失败：' + error.message);
+  }
 };
+// 观察tableData的变化，更新图表配置
+watch(tableData, () => {
+  generateChartOption();
+  initChart();
+}, {
+  deep: true // 深度观察
+});
 
+onMounted(() => {
+  // 确保在DOM渲染后初始化图表
+  initChart();
+});
 
-
+onUnmounted(() => {
+  if (chartInstance) {
+    chartInstance.dispose();
+    chartInstance = null;
+  }
+});
 
 
 </script>
