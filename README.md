@@ -46,6 +46,7 @@ Authorization: `Bearer ${token}`，其中const token = localStorage.getItem('tok
 
 ```bash
 npm install
+npm install -D sass
 ```
 
 ### 运行
