@@ -212,13 +212,18 @@ const sendQuery = async () => {
     console.log('Table Headers:', tableHeaders.value);
     console.log('Table Data:', tableData.value);
       // 确保图表容器存在并且数据已更新后，初始化图表
+      await nextTick();
       initChart();// 重新初始化图表
+    } else if (status === '300') {
+      alert('无相关数据');
+    } else if (status === '400') {
+      alert('请求权限不足');
     } else {
-      alert('status 不为200查询失败');
+      alert('未知错误');
     }
   } catch (error) {
-    console.error('查询请求失败', error);
-    alert('查询请求失败：' + error.message);
+    console.error('Error:', error);
+    alert('查询失败');
   }
 };
 // 观察tableData的变化，更新图表配置
