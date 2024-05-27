@@ -3,9 +3,9 @@
     <h1>个人信息</h1>
     <el-card class="profile-card">
       <el-descriptions title="当前个人信息" :column="1">
-        <el-descriptions-item label="用户名：">{{ userProfile.Username }}</el-descriptions-item>
-        <el-descriptions-item label="密&nbsp;&nbsp;&nbsp;码：">{{ userProfile.Password }}</el-descriptions-item>
-        <el-descriptions-item label="邮&nbsp;&nbsp;&nbsp;箱：">{{ userProfile.Email }}</el-descriptions-item>
+        <el-descriptions-item label="用户名：">{{ userProfile.username }}</el-descriptions-item>
+        <el-descriptions-item label="密&nbsp;&nbsp;&nbsp;码：">{{ userProfile.password }}</el-descriptions-item>
+        <el-descriptions-item label="邮&nbsp;&nbsp;&nbsp;箱：">{{ userProfile.email }}</el-descriptions-item>
       </el-descriptions>
       <el-button type="primary" @click="showUpdateForm = true" plain>更新个人信息</el-button>
       <!-- 将整个表单包裹在一个元素中，并使用v-if控制 -->
@@ -52,9 +52,9 @@ const fetchUserProfile = async () => {
 
   try {
     console.log(userProfile.value)
-    const response = await axios.get('http://localhost:8080/UserCRUD/',{ headers });
+    const response = await axios.get('http://localhost:8000/UserCRUD/',{ headers });
     if (response.data.status === '200') {
-      userProfile.value = response.data.data[0];
+      userProfile.value = response.data.users[0];
       console.log(userProfile.value)
     } else {
       ElMessage.error('获取用户信息失败');
@@ -100,7 +100,7 @@ const updateUserInfo = async () => {
             Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
           };
         console.log(updateInfo.value)
-        const response = await axios.put('http://localhost:8080/UserCRUD/', updateInfo.value,{ headers });
+        const response = await axios.put('http://localhost:8000/UserCRUD/', updateInfo.value,{ headers });
         if (response.data.status === '200') {
           ElMessage.success('个人信息更新成功');
           // 如果需要，可以在此处刷新用户信息

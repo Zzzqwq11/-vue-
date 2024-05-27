@@ -33,7 +33,7 @@
             <el-card shadow="never" style="overflow: hidden;">
               <div slot="header">可视化图表</div>
                 <!--  ref 来引用图表的容器元素 -->
-              <div ref="chart-container" style="height: 400px;">
+              <div style="height: 400px;" ref="chartContainer">
                 <!-- 图表内容 -->
                   <v-chart :option="chartOption" />
               </div>
@@ -63,7 +63,7 @@ import { useRouter } from 'vue-router';
         GridComponent
     } from "echarts/components";
     import VChart, { THEME_KEY } from "vue-echarts";
-    import { ref, provide, onMounted, computed } from "vue";
+    import { ref, provide, onMounted, onUnmounted, computed, nextTick } from "vue";
 
 // 定义navigateTo方法
 const router = useRouter();
@@ -87,8 +87,6 @@ const validateSql = () => {
 };
 
 const tableData = ref([]);// 假设tableData存储查询结果，
-// 定义headers为响应式的ref，用于存储动态生成的表头信息
-const tableHeaders = ref([]);
 // 定义一个函数来生成表头信息
 const generateHeaders = (data) => {
   if (data && data.length > 0) {
@@ -101,6 +99,10 @@ const generateHeaders = (data) => {
   }
   return []; // 如果没有数据，返回空数组
 };
+
+// 定义headers为响应式的ref，用于存储动态生成的表头信息
+const tableHeaders = ref([]);
+
 const chartContainer = ref(null);
 const chartOption = ref({});
 use([
@@ -129,10 +131,7 @@ const generateChartOption = () => {
       });
 
     chartOption.value = {
-      title: {
-        text: 'User Data Statistics',
-        left: 'center'
-      },
+
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -140,7 +139,7 @@ const generateChartOption = () => {
         }
       },
       legend: {
-        data: xAxisData
+        data: ['Count'] // 只包含实际存在的系列名称
       },
       grid: {
         left: '3%',
@@ -174,40 +173,49 @@ const generateChartOption = () => {
 };
 
 
-// 初始化图表
-const initChart = () => {
-  if (chartContainer.value) {
-    const chart = echarts.init(chartContainer.value);
-    chart.setOption(chartOption.value);
-  }
-};
-onMounted(() => {
-    generateChartOption();
-    initChart();
-});
-
+    // 初始化图表
+    const initChart = () => {
+        if (chartContainer.value) {
+            const chart = echarts.init(chartContainer.value);
+            chart.setOption(chartOption.value);
+        }
+    };
+    onMounted(() => {
+        generateChartOption();
+        initChart();
+    });
 
 
 // 发送查询请求
 const sendQuery = async () => {
-   //在 login.vue 中通过 localStorage.setItem('token', response.data.token); 将后端返回的令牌存储在本地存储中，
-   //然后在 see.vue 或任何其他需要使用令牌的组件中通过 const token = localStorage.getItem('token'); 来获取这个令牌。
-  const token = localStorage.getItem('token');
-  if (!token) {
-    alert('Token not found, 请先登录.');
-    return;  //没有token，提前终止请求
-  }
-
-  const headers = {
-    'Content-Type': 'application/json',  // 指定请求体的媒体类型为 JSON，以便服务器知道如何解析请求内容
-    Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
-  };
-
-  try {
-    console.log(sql.value)
-    const response = await axios.post('http://localhost:8000/query/', { user_input: sql.value }, { headers });
-    console.log(response.data)
-    const { status, sql_queries } = response.data;
+    const response = {
+    "status": "200",
+    "sql_queries": [
+        {
+            "UserID": 1,
+            "Username": "root",
+            "Password": "root123",
+            "Email": "root@example.com",
+            "Role": ""
+        },
+        {
+            "UserID": 2,
+            "Username": "root",
+            "Password": "root123",
+            "Email": "root@example.com",
+            "Role": "管理员"
+        },
+        {
+            "UserID": 3,
+            "Username": "test",
+            "Password": "test123",
+            "Email": "test@test.com",
+            "Role": "普通用户"
+        }
+    ]
+};
+    console.log(response)
+    const { status, sql_queries } = response;
     // 打印status和sql_queries
     console.log('Status:', status);
     console.log('SQL Queries:', sql_queries);
@@ -218,24 +226,17 @@ const sendQuery = async () => {
     console.log('Table Headers:', tableHeaders.value);
     console.log('Table Data:', tableData.value);
       // 确保图表容器存在并且数据已更新后，初始化图表
+      // 在sendQuery方法中
+      await nextTick(); // 确保DOM更新
       initChart();// 重新初始化图表
+      console.log("好")
     } else {
       alert('status 不为200查询失败');
     }
-  } catch (error) {
-    console.error('查询请求失败', error);
-    alert('查询请求失败：' + error.message);
-  }
 };
 
 
 
-/// 使用 onMounted 钩子初始化图表
-//onMounted(() => {
-//  // 如果有需要在页面加载时立即执行的初始化逻辑，可以在这里写，但注意检查是否依赖于已经渲染的 DOM
-//  // 注意：如果图表依赖于从服务器获取的数据，那么这里的调用可能不适用，应确保数据存在后再初始化图表
-
-//});
 
 
 </script>
@@ -251,10 +252,9 @@ const sendQuery = async () => {
   font-size: 24px; /* 图标大小 */
 }
 
+    .chart {
+        height: 400px;
+        margin-top: 20px; /* 添加上下边距 */
+    }
 
-.container {
-  padding: 10px 80px;
-  width: 100%;
-
-}
 </style>

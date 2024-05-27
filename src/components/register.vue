@@ -17,7 +17,7 @@
             <el-col :span="24">
                 <el-card shadow="never" style="overflow: hidden;">
                     <div slot="header">可视化图表</div>
-                    <div ref="chart-container" style="height: 400px;">
+                    <div ref="chartContainer" style="height: 400px;">
                         <v-chart :option="chartOption" />
                     </div>
                 </el-card>
@@ -146,10 +146,6 @@
             });
 
             chartOption.value = {
-                title: {
-                    text: 'User Data Statistics',
-                    left: 'center'
-                },
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: {
@@ -157,7 +153,7 @@
                     }
                 },
                 legend: {
-                    data: xAxisData
+                    data: ['Count'] // 只包含实际存在的系列名称
                 },
                 grid: {
                     left: '3%',
