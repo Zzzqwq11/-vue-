@@ -8,6 +8,7 @@ import contact   from '../components/contact.vue'
 import register  from '../components/register.vue'
 import usersettings  from '../components/usersettings.vue'
 import help   from '../components/help.vue'
+import test   from '../components/test.vue'
 
 const routes = [
     {
@@ -46,6 +47,10 @@ const routes = [
     {
         path: '/help',
         component:help
+    },
+        {
+        path: '/test',
+        component:test
     }
 ]
 

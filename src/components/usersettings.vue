@@ -52,7 +52,7 @@ const fetchUserProfile = async () => {
 
   try {
     console.log(userProfile.value)
-    const response = await axios.get('http://localhost:8000/UserCRUD/',{ headers });
+    const response = await axios.get('http://localhost:8080/UserCRUD/',{ headers });
     if (response.data.status === '200') {
       userProfile.value = response.data.users[0];
       console.log(userProfile.value)
@@ -100,7 +100,7 @@ const updateUserInfo = async () => {
             Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
           };
         console.log(updateInfo.value)
-        const response = await axios.put('http://localhost:8000/UserCRUD/', updateInfo.value,{ headers });
+        const response = await axios.put('http://localhost:8080/UserCRUD/', updateInfo.value,{ headers });
         if (response.data.status === '200') {
           ElMessage.success('个人信息更新成功');
           // 如果需要，可以在此处刷新用户信息

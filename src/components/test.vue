@@ -1,47 +1,49 @@
 <template>
-      <div class="container">
-        <el-row justify="start" align="middle" class="header-buttons">
-          <el-col :span="8" :xs="24">
-            <el-button type="primary" plain @click="navigateTo('/usersettings')"  >个人设置</el-button>
-            <el-button type="primary" plain @click="navigateTo('/help')"  >帮助与支持</el-button>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="24">
-            <el-card shadow="never" style="overflow: hidden;">
-              <div slot="header">SQL 查询</div>
-              <el-input v-model="sql" placeholder="输入查询内容" @input="validateSql"></el-input>
-              <el-button type="primary" :disabled="isSqlInvalid" @click="sendQuery">发送查询</el-button>
-              <el-message v-if="sqlError" type="error">{{ sqlError }}</el-message>
-              <pre>{{ sql }}</pre>
-            </el-card>
-          </el-col>
-        </el-row>
-        <!-- 动态地根据后端返回的数据展示表格列 -->
-          <el-row :gutter="20">
-            <el-col :span="24">
-              <el-card shadow="never" style="overflow: hidden;">
-                <div slot="header">查询结果</div>
-                <el-table :data="tableData" border style="width: 100%">
-                  <el-table-column v-for="(header, index) in tableHeaders" :key="index" :prop="header.key" :label="header.label" :width="header.width || '180'"></el-table-column>
-                </el-table>
-              </el-card>
-            </el-col>
-          </el-row>
-        <el-row :gutter="20">
-          <el-col :span="24">
-            <el-card shadow="never" style="overflow: hidden;">
-              <div slot="header">可视化图表</div>
-              <div style="height: 400px;" ref="chartContainer">
-                <v-chart :option="chartOption" autoresize />
-              </div>
-            </el-card>
-          </el-col>
-        </el-row>
-      </div>
-
-
-
+  <div class="container">
+    <!-- 头部按钮 -->
+    去注册
+    <el-row justify="start" align="middle" class="header-buttons">
+      <el-col :span="8" :xs="24">
+        <el-button type="primary" plain @click="navigateTo('/usersettings')">个人设置</el-button>
+        <el-button type="primary" plain @click="navigateTo('/help')">帮助与支持</el-button>
+      </el-col>
+    </el-row>
+    <!-- SQL 查询区域 -->
+    <el-row :gutter="20">
+      <el-col :span="24">
+        <el-card shadow="never" style="overflow: hidden;">
+          <div slot="header">SQL 查询</div>
+          <el-input v-model="sql" placeholder="输入查询内容" @input="validateSql"></el-input>
+          <el-button type="primary" :disabled="isSqlInvalid" @click="sendQuery">发送查询</el-button>
+          <el-message v-if="sqlError" type="error">{{ sqlError }}</el-message>
+          <pre>{{ sql }}</pre>
+        </el-card>
+      </el-col>
+    </el-row>
+    <!-- 查询结果表格 -->
+    <el-row :gutter="20">
+      <el-col :span="24">
+        <el-card shadow="never" style="overflow: hidden;">
+          <div slot="header">查询结果</div>
+          <el-table :data="tableData" border style="width: 100%" @selection-change="handleColumnSelect">
+            <el-table-column type="selection" width="55"></el-table-column>
+            <el-table-column v-for="(header, index) in tableHeaders" :key="index" :prop="header.key" :label="header.label" :width="header.width"></el-table-column>
+          </el-table>
+        </el-card>
+      </el-col>
+    </el-row>
+    <!-- 可视化图表 -->
+    <el-row :gutter="20">
+      <el-col :span="24">
+        <el-card shadow="never" style="overflow: hidden;">
+          <div slot="header">可视化图表</div>
+          <div style="height: 400px;" ref="chartContainer">
+            <v-chart :option="chartOption" autoresize />
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+  </div>
 </template>
 
 <script setup>
@@ -63,7 +65,6 @@ import { useRouter } from 'vue-router';
     import VChart, { THEME_KEY } from "vue-echarts";
     import { ref, provide, watch, onMounted, onUnmounted, computed, nextTick } from "vue";
 
-// 定义navigateTo方法
 const router = useRouter();
 const navigateTo = (path) => {
   router.push(path);
@@ -72,9 +73,8 @@ const navigateTo = (path) => {
 const sql = ref('');
 const sqlError = ref('');
 const isSqlInvalid = ref(false);
-
 const validateSql = () => {
-  if (!sql.value.trim()) {
+    if (!sql.value.trim()) {
     sqlError.value = 'SQL 输入不能为空';
     alert('不能为空')
     isSqlInvalid.value = true;
@@ -84,8 +84,8 @@ const validateSql = () => {
   }
 };
 
-const tableData = ref([]);// 假设tableData存储查询结果，
-// 定义一个函数来生成表头信息
+const tableData = ref([]); // 假设tableData存储查询结果
+const tableHeaders = ref([]);
 const generateHeaders = (data) => {
   if (data && data.length > 0) {
     const firstItem = data[0];
@@ -98,9 +98,6 @@ const generateHeaders = (data) => {
   return []; // 如果没有数据，返回空数组
 };
 
-// 定义headers为响应式的ref，用于存储动态生成的表头信息
-const tableHeaders = ref([]);
-
 const chartContainer = ref(null);
 const chartOption = ref({});
 use([
@@ -111,22 +108,27 @@ use([
   LegendComponent,
   GridComponent
 ]);
-
 provide(THEME_KEY, "dark");
 
-// 根据tableData生成图表配置
+const selectedColumns = ref([]); // 用于存储用户选择的列
+
+const handleColumnSelect = (selection) => {
+  selectedColumns.value = selection.map(item => item);
+  generateChartOption();
+  initChart();
+};
+
 const generateChartOption = () => {
-  if (tableData.value.length > 0) {
-    const xAxisData = tableHeaders.value.map(header => header.label);
-    const seriesData = tableHeaders.value.map(header => {
-       return tableData.value.reduce((count, row) => {
-           // 只有当row[header.key]存在且不为空时，才会计数
-          if (row[header.key] !== null && row[header.key] !== undefined && row[header.key] !== '') {
-            return count + 1;
-              }
-            return count;
-          }, 0); // 初始计数为0
-      });
+  if (selectedColumns.value.length > 0) {
+    const xAxisData = selectedColumns.value.map(header => header.label);
+    const seriesData = selectedColumns.value.map(header => {
+      return tableData.value.reduce((count, row) => {
+        if (row[header.key] !== null && row[header.key] !== undefined && row[header.key] !== '') {
+          return count + 1;
+        }
+        return count;
+      }, 0);
+    });
 
     chartOption.value = {
 
@@ -170,6 +172,7 @@ const generateChartOption = () => {
   }
 };
 
+
 //定义一个变量来持有图表实例，这样我们可以在需要时销毁它
 let chartInstance = null;
 const initChart = () => {
@@ -185,23 +188,68 @@ const initChart = () => {
 
 // 发送查询请求
 const sendQuery = async () => {
-   //在 login.vue 中通过 localStorage.setItem('token', response.data.token); 将后端返回的令牌存储在本地存储中，
-   //然后在 see.vue 或任何其他需要使用令牌的组件中通过 const token = localStorage.getItem('token'); 来获取这个令牌。
-  const token = localStorage.getItem('token');
-  if (!token) {
-    alert('Token not found, 请先登录.');
-    return;  //没有token，提前终止请求
-  }
-
-  const headers = {
-    'Content-Type': 'application/json',  // 指定请求体的媒体类型为 JSON，以便服务器知道如何解析请求内容
-    Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
-  };
-  try {
-    console.log(sql.value)
-    const response = await axios.post('http://localhost:8080/query/', { user_input: sql.value }, { headers });
-    console.log(response.data)
-    const { status, sql_queries } = response.data;
+    const response = {
+    "status": "200",
+    "sql_queries": [
+        {
+            "UserID": 1,
+            "Username": "root",
+            "Password": "root123",
+            "Email": "root@example.com",
+            "Role": ""
+        },
+        {
+            "UserID": 2,
+            "Username": "root",
+            "Password": "root123",
+            "Email": "root@example.com",
+            "Role": "管理员"
+        },
+        {
+            "UserID": 3,
+            "Username": "test",
+            "Password": "test123",
+            "Email": "test@test.com",
+            "Role": "普通用户"
+        },
+   {
+            "UserID": 4,
+            "Username": "user4",
+            "Password": "pass456",
+            "Email": "",
+            "Role": "普通用户"
+        },
+        {
+            "UserID": 5,
+            "Username": "admin5",
+            "Password": "admin567",
+            "Email": "admin5@example.com",
+            "Role": "管理员"
+        },
+        {
+            "UserID": 6,
+            "Username": "guest6",
+            "Password": "guest678",
+            "Email": "",
+            "Role": "管理员"
+        },
+        {
+            "UserID": 7,
+            "Username": "dev7",
+            "Password": "dev789",
+            "Email": "dev7@example.com",
+            "Role": "管理员"
+        },
+        {
+            "UserID": 8,
+            "Username": "support8",
+            "Password": "support890",
+            "Email": "",
+            "Role": ""
+        }
+    ]
+};
+    const { status, sql_queries } = response;
     // 打印status和sql_queries
     console.log('Status:', status);
     console.log('SQL Queries:', sql_queries);
@@ -221,10 +269,7 @@ const sendQuery = async () => {
     } else {
       alert('未知错误');
     }
-  } catch (error) {
-    console.error('Error:', error);
-    alert('查询失败');
-  }
+
 };
 // 观察tableData的变化，更新图表配置
 watch(tableData, () => {
@@ -245,7 +290,6 @@ onUnmounted(() => {
     chartInstance = null;
   }
 });
-
 
 </script>
 

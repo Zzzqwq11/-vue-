@@ -86,7 +86,7 @@ const login = async () => {
     try {
       // 登录请求逻辑
       console.log(form.value)
-      const response = await axios.post('http://127.0.0.1:8000/login/', form.value, { headers });
+      const response = await axios.post('http://127.0.0.1:8080/login/', form.value, { headers });
       console.log(response.data);
       // 根据后端返回的数据结构调整这里的判断逻辑
       if (response.data.status === '200') {
