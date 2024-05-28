@@ -1,5 +1,8 @@
 <template>
-  <div class="login-container">
+    <div class="background-image" id="back">
+      <!-- 背景图 -->
+      <img src="@/assets/cool-background.png" alt="背景图" class="background-image" />
+      <div class="login-container">
     <el-form :model="form" ref="formRef" class="login-form" :rules="rules">
       <el-alert v-if="showAlert" :closable="true" type="error" title="登录失败" description="用户名或密码错误，请重试。" show-icon
        effect="dark" center @close="showAlert = false" class="custom-alert"></el-alert>
@@ -15,6 +18,8 @@
       </el-form-item>
     </el-form>
   </div>
+    </div>
+  
 </template>
 <script lang="ts" setup>
 import { ref } from 'vue'
@@ -113,6 +118,7 @@ const login = async () => {
 <style scoped>
 .login-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 80vh;
@@ -124,6 +130,15 @@ const login = async () => {
   background-color: white;
   border-radius: 5px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+.background-image {
+    width: 100%; /* 设置图片宽度为 100% */
+    height: 100%; /* 设置图片高度为 100% */
+    object-fit: cover; /* 确保图片铺满容器，但可能会裁剪图片 */
+    position: absolute; /* 确保图片不会从容器中溢出 */
+    top: 0;
+    left: 0;
+    z-index: -1; /* 将图片置于最底层 */
 }
 .el-input {
   width: 100%;

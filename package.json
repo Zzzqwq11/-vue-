@@ -12,7 +12,9 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
     "axios": "^1.7.0",
+    "devui-theme": "^0.0.7",
     "echarts": "^5.5.0",
     "element-plus": "^2.7.3",
     "vue": "^3.4.21",
@@ -25,6 +27,7 @@
     "@types/node": "^20.11.30",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/test-utils": "^2.4.6",
+    "sass": "^1.77.2",
     "typescript": "^5.4.3",
     "unocss": "^0.58.6",
     "unplugin-auto-import": "^0.17.6",
