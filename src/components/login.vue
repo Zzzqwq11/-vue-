@@ -2,6 +2,7 @@
     <div class="background-image" id="back">
       <!-- 背景图 -->
       <img src="@/assets/cool-background.png" alt="背景图" class="background-image" />
+    </div>
       <div class="login-container">
     <el-form :model="form" ref="formRef" class="login-form" :rules="rules">
       <el-alert v-if="showAlert" :closable="true" type="error" title="登录失败" description="用户名或密码错误，请重试。" show-icon
@@ -17,7 +18,7 @@
         <el-button type="primary" @click="login" >登录进入可视化页面</el-button>
       </el-form-item>
     </el-form>
-  </div>
+
     </div>
   
 </template>

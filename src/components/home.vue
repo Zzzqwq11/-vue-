@@ -1,11 +1,12 @@
 <template>
   <div class="background-image" id="back">
     <img src="@/assets/cool-background.png" alt="背景图" class="background-image" />
+    </div>
     <div class="glass-container" id="glass">
       <h1>DataCopilot</h1>
       <p>自然语言查询，无需编写SQL，轻松分析数据</p>
     </div>
-  </div>
+
 </template>
 <script setup>
 </script>
@@ -34,7 +35,7 @@
 }
 .background-image {
     width: 100%; /* 设置图片宽度为 100% */
-    height: 100%; /* 设置图片高度为 100% */
+    height: 99%; /* 设置图片高度为 100% */
     object-fit: cover; /* 确保图片铺满容器，但可能会裁剪图片 */
     position: absolute; /* 确保图片不会从容器中溢出 */
     top: 0;
