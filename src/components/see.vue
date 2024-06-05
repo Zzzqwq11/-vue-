@@ -10,8 +10,19 @@
           <el-col :span="24">
             <el-card shadow="never" style="overflow: hidden;">
               <div slot="header">SQL 查询</div>
-              <el-input v-model="sql" placeholder="输入查询内容" @input="validateSql"></el-input>
-              <el-button type="primary" :disabled="isSqlInvalid" @click="sendQuery">发送查询</el-button>
+                <!-- 数据库下拉菜单 -->
+                <el-select v-model="selectedDatabase" placeholder="请选择要查询的数据库">
+                  <el-option
+                    v-for="db in availableDatabases"
+                    :key="db"
+                    :label="db"
+                    :value="db"
+                  />
+                </el-select>
+                <!-- 切换数据库按钮 -->
+                    <el-button type="primary" @click="switchDatabase">切换一个数据库</el-button>
+                <el-input v-model="sql" placeholder="输入查询内容" @input="validateSql"></el-input>
+                    <el-button type="primary" :disabled="isSqlInvalid" @click="sendQuery">发送查询</el-button>
               <el-message v-if="sqlError" type="error">{{ sqlError }}</el-message>
               <pre>{{ sql }}</pre>
             </el-card>
@@ -62,6 +73,7 @@ import { useRouter } from 'vue-router';
     } from "echarts/components";
     import VChart, { THEME_KEY } from "vue-echarts";
     import { ref, provide, watch, onMounted, onUnmounted, computed, nextTick } from "vue";
+    import { ElMessage } from 'element-plus';
 
 // 定义navigateTo方法
 const router = useRouter();
@@ -226,6 +238,94 @@ const sendQuery = async () => {
     alert('查询失败');
   }
 };
+
+// 可用的数据库列表
+const availableDatabases = ref([]);
+
+// 当前选择的数据库
+const selectedDatabase = ref('');
+
+onMounted(async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('Token not found, 请先登录.');
+    return;  //没有token，提前终止请求
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',  // 指定请求体的媒体类型为 JSON，以便服务器知道如何解析请求内容
+    Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
+  };
+  try {
+    const response = await axios.get('http://localhost:8080/choosesql/',{ headers });
+    console.log(response.data)
+    if (response.data.status === '200') {
+      availableDatabases.value = response.data.databases;
+    } else {
+      // 如果status不是200，可以在这里处理错误情况
+      ElMessage({
+        type: 'error',
+        message: '获取数据库列表时发生错误!',
+      });
+    }
+  } catch (error) {
+    // 在这里处理请求失败的情况，例如网络问题
+    console.error(error);
+    ElMessage({
+      type: 'error',
+      message: '网络请求失败，请检查网络连接!',
+    });
+  }
+});
+
+// 切换数据库的方法
+const switchDatabase = async () => {
+   //在 login.vue 中通过 localStorage.setItem('token', response.data.token); 将后端返回的令牌存储在本地存储中，
+   //然后在 see.vue 或任何其他需要使用令牌的组件中通过 const token = localStorage.getItem('token'); 来获取这个令牌。
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('Token not found, 请先登录.');
+    return;  //没有token，提前终止请求
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',  // 指定请求体的媒体类型为 JSON，以便服务器知道如何解析请求内容
+    Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
+  };
+
+  if (!selectedDatabase.value) {
+    ElMessage({
+      type: 'warning',
+      message: '请先选择一个数据库!',
+    });
+    return;
+  }
+  try {
+    console.log(selectedDatabase.value)
+    const response = await axios.post('http://localhost:8080/choosesql/', { database: selectedDatabase.value },{ headers });
+    console.log(response.data)
+    if (response.data.status === '200') {
+      ElMessage({
+        type: 'success',
+        message: '数据库切换成功!',
+      });
+    } else {
+      ElMessage({
+        type: 'error',
+        message: '数据库切换失败!',
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    ElMessage({
+      type: 'error',
+      message: '请求处理时发生错误!',
+    });
+  }
+};
+
+
+
 // 观察tableData的变化，更新图表配置
 watch(tableData, () => {
   generateChartOption();

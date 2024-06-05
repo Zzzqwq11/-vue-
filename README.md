@@ -31,10 +31,13 @@ Authorization: `Bearer ${token}`，其中const token = localStorage.getItem('tok
 - 后端参数status=200，表示查询成功，
 - 查询成功后，tableData.value = [sql_queries];把后端的sql_queries值传给前端的tableData.value，即查询结果部分会更新表格数据源，表格显示新的查询结果。
 - 已解决动态渲染
+- 新增了数据库切换功能，根据后端返回的数据库列表来让用户选择要切换的数据库
 
 
 ## 可视化图表部分
+- 
 - 前端可以显示表格数据的图像可视化
+- 前端
 
 > 用户个人信息页面
 - 登录进入之后，点击个人设置，进入用户个人信息

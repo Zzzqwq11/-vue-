@@ -1,7 +1,39 @@
+<style scoped>
+.container {
+  font-family: Arial, sans-serif;
+}
+.header-buttons {
+  margin-bottom: 20px; /* 为下方内容留出空间 */
+}
+.el-checkbox-group {
+  margin: 16px 0;
+}
+.el-checkbox {
+  margin-right: 8px;
+}
+.send-query-button {
+  background-color: #007bff !important;
+  border-color: #007bff !important;
+}
+.send-query-button:hover {
+  background-color: #0056b3 !important;
+  border-color: #0056b3 !important;
+}
+/* 可能需要覆盖Element UI的默认样式以达到最佳视觉效果 */
+.button-circle .el-icon {
+  font-size: 24px; /* 图标大小 */
+}
+
+    .chart {
+        height: 400px;
+        margin-top: 20px; /* 添加上下边距 */
+    }
+
+</style>
+
 <template>
   <div class="container">
     <!-- 头部按钮 -->
-    去注册
     <el-row justify="start" align="middle" class="header-buttons">
       <el-col :span="8" :xs="24">
         <el-button type="primary" plain @click="navigateTo('/usersettings')">个人设置</el-button>
@@ -11,10 +43,26 @@
     <!-- SQL 查询区域 -->
     <el-row :gutter="20">
       <el-col :span="24">
-        <el-card shadow="never" style="overflow: hidden;">
-          <div slot="header">SQL 查询</div>
+        <el-card shadow="always" style="border-radius: 8px;">
+          <div slot="header" >SQL 查询</div>
+                <!-- 数据库下拉菜单 -->
+                <el-select v-model="selectedDatabase" placeholder="请选择要查询的数据库">
+                  <el-option
+                    v-for="db in availableDatabases"
+                    :key="db"
+                    :label="db"
+                    :value="db"
+                  />
+                </el-select>
+                <!-- 切换数据库按钮 -->
+                    <el-button type="primary" @click="switchDatabase">切换一个数据库</el-button>
           <el-input v-model="sql" placeholder="输入查询内容" @input="validateSql"></el-input>
-          <el-button type="primary" :disabled="isSqlInvalid" @click="sendQuery">发送查询</el-button>
+          <el-button
+            type="primary"
+            :disabled="isSqlInvalid"
+            @click="sendQuery"
+            class="send-query-button"
+          >发送查询</el-button>
           <el-message v-if="sqlError" type="error">{{ sqlError }}</el-message>
           <pre>{{ sql }}</pre>
         </el-card>
@@ -25,13 +73,46 @@
       <el-col :span="24">
         <el-card shadow="never" style="overflow: hidden;">
           <div slot="header">查询结果</div>
-          <el-table :data="tableData" border style="width: 100%" @selection-change="handleColumnSelect">
-            <el-table-column type="selection" width="55"></el-table-column>
+          <el-table :data="tableData" border style="width: 100%" >
             <el-table-column v-for="(header, index) in tableHeaders" :key="index" :prop="header.key" :label="header.label" :width="header.width"></el-table-column>
           </el-table>
         </el-card>
       </el-col>
     </el-row>
+
+    <!-- 数据可视化配置区 -->
+    <el-row :gutter="20" >
+      <el-col :span="24">
+        <el-card shadow="always">
+          <div slot="header" style="margin-bottom: 20px;">请选择您的可视化需求</div>
+          <div>
+            <!-- 使用嵌套的 el-row 来组织内容 -->
+            <el-row :gutter="8" >
+              <!-- 第一行：图表类型 -->
+              <el-col :span="12">
+                图表类型：
+                <el-radio-group  v-model="chartType" @change="handleChartTypeChange">
+                  <el-radio :value="'bar'">条形图</el-radio>
+                  <el-radio :value="'pie'">饼图</el-radio>
+                </el-radio-group>
+              </el-col>
+            </el-row>
+              <!-- 第二行：列属性名 -->
+            <el-row :gutter="8" v-if="tableData.length">
+              <el-col :span="12">
+              <p style="display: flex; align-items: center;">列属性名：
+                <el-checkbox-group v-model="selectedColumnsForChart" @change="handleColumnSelect">
+                  <el-checkbox v-for="header in tableHeaders" :key="header.key" :label="header.label" :value="header.key"></el-checkbox>
+                </el-checkbox-group>
+              </p>
+              </el-col>
+            </el-row>
+
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
     <!-- 可视化图表 -->
     <el-row :gutter="20">
       <el-col :span="24">
@@ -44,6 +125,7 @@
       </el-col>
     </el-row>
   </div>
+  <RouterLink to="/see">可视化</RouterLink>
 </template>
 
 <script setup>
@@ -64,7 +146,7 @@ import { useRouter } from 'vue-router';
     } from "echarts/components";
     import VChart, { THEME_KEY } from "vue-echarts";
     import { ref, provide, watch, onMounted, onUnmounted, computed, nextTick } from "vue";
-
+    import  { ElMessage } from 'element-plus'
 const router = useRouter();
 const navigateTo = (path) => {
   router.push(path);
@@ -110,65 +192,100 @@ use([
 ]);
 provide(THEME_KEY, "dark");
 
-const selectedColumns = ref([]); // 用于存储用户选择的列
-
-const handleColumnSelect = (selection) => {
-  selectedColumns.value = selection.map(item => item);
-  generateChartOption();
-  initChart();
-};
-
 const generateChartOption = () => {
-  if (selectedColumns.value.length > 0) {
-    const xAxisData = selectedColumns.value.map(header => header.label);
-    const seriesData = selectedColumns.value.map(header => {
-      return tableData.value.reduce((count, row) => {
-        if (row[header.key] !== null && row[header.key] !== undefined && row[header.key] !== '') {
-          return count + 1;
-        }
-        return count;
-      }, 0);
-    });
+  if (selectedColumnsForChart.value.length > 0) {
+    if (chartType.value === 'bar'){
+        const xAxisData = selectedColumnsForChart.value.map(key => tableHeaders.value.find(h => h.key === key)?.label || '');
+        const seriesData = selectedColumnsForChart.value.map(key => {
+          return tableData.value.reduce((count, row) => {
+            if (row[key] !== null && row[key] !== undefined && row[key] !== '') {
+              return count + 1;
+            }
+            return count;
+          }, 0);
+        });
 
-    chartOption.value = {
+        chartOption.value = {
 
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow'
-        }
-      },
-      legend: {
-        data: ['Count'] // 只包含实际存在的系列名称
-      },
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
-      },
-      xAxis: {
-        type: 'value'
-      },
-      yAxis: {
-        type: 'category',
-        data: xAxisData
-      },
-      series: [
-        {
-          name: 'Count',
-          type: 'bar',
-          data: seriesData,
-          itemStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#83bff6' },
-              { offset: 0.5, color: '#188df0' },
-              { offset: 1, color: '#188df0' }
-            ])
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
+          },
+          legend: {
+            data: ['Count'] // 只包含实际存在的系列名称
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'value'
+          },
+          yAxis: {
+            type: 'category',
+            data: xAxisData
+          },
+          series: [
+            {
+              name: 'Count',
+              type: 'bar',
+              data: seriesData,
+              itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: '#83bff6' },
+                  { offset: 0.5, color: '#188df0' },
+                  { offset: 1, color: '#188df0' }
+                ])
+              }
+            }
+          ]
+        };
+    } else if (chartType.value === 'pie') {
+      // 生成饼图的配置
+      const seriesData = selectedColumnsForChart.value.map(key => {
+        const label = tableHeaders.value.find(h => h.key === key)?.label || '';
+        return {
+          name: label,
+          value: tableData.value.reduce((count, row) => {
+            if (row[key] !== null && row[key] !== undefined && row[key] !== '') {
+              return count + 1;
+            }
+            return count;
+          }, 0)
+        };
+      });
+
+      chartOption.value = {
+        tooltip: {
+          trigger: 'item'
+        },
+        legend: {
+          orient: 'vertical',
+          left: 'left'
+        },
+        series: [
+          {
+            name: 'Count',
+            type: 'pie',
+            radius: '50%',
+            data: seriesData,
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
           }
-        }
-      ]
-    };
+        ]
+      };
+
+    }
+
   }
 };
 
@@ -185,6 +302,36 @@ const initChart = () => {
   }
 };
 
+
+const selectedColumnsForChart = ref([]);   // 用于存储用户选择的列
+const handleColumnSelect = (selection) => {
+  // 更新选中的列信息
+  selectedColumnsForChart.value = selection
+  // 检查是否至少有一个选项被选中
+  if (selectedColumnsForChart.value.length > 0) {
+    // 基于选中的列生成图表配置
+    generateChartOption();
+    // 初始化或更新图表
+    initChart();
+  } else {
+    // 如果没有选项被选中，可以清理现有图表考虑给出提示
+    ElMessage.error('至少选择一列');
+  }
+};
+
+const chartType = ref(''); // 不默认选择任何图表类型
+const handleChartTypeChange = () => {
+  if (chartType.value === 'bar' || chartType.value === 'pie') {
+    generateChartOption();
+    initChart();
+  } else {
+    // 如果chartType为空，清除图表配置
+    chartOption.value = {};
+    if (chartInstance) {
+      chartInstance.clear();
+    }
+  }
+};
 
 // 发送查询请求
 const sendQuery = async () => {
@@ -271,6 +418,95 @@ const sendQuery = async () => {
     }
 
 };
+
+
+// 可用的数据库列表
+const availableDatabases = ref([]);
+
+// 当前选择的数据库
+const selectedDatabase = ref('');
+
+onMounted(async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('Token not found, 请先登录.');
+    return;  //没有token，提前终止请求
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',  // 指定请求体的媒体类型为 JSON，以便服务器知道如何解析请求内容
+    Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
+  };
+  try {
+    const response = await axios.get('http://localhost:8080/choosesql/',{ headers });
+    console.log(response.data)
+    if (response.data.status === '200') {
+      availableDatabases.value = response.data.databases;
+    } else {
+      // 如果status不是200，可以在这里处理错误情况
+      ElMessage({
+        type: 'error',
+        message: '获取数据库列表时发生错误!',
+      });
+    }
+  } catch (error) {
+    // 在这里处理请求失败的情况，例如网络问题
+    console.error(error);
+    ElMessage({
+      type: 'error',
+      message: '网络请求失败，请检查网络连接!',
+    });
+  }
+});
+
+// 切换数据库的方法
+const switchDatabase = async () => {
+   //在 login.vue 中通过 localStorage.setItem('token', response.data.token); 将后端返回的令牌存储在本地存储中，
+   //然后在 see.vue 或任何其他需要使用令牌的组件中通过 const token = localStorage.getItem('token'); 来获取这个令牌。
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('Token not found, 请先登录.');
+    return;  //没有token，提前终止请求
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',  // 指定请求体的媒体类型为 JSON，以便服务器知道如何解析请求内容
+    Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
+  };
+
+  if (!selectedDatabase.value) {
+    ElMessage({
+      type: 'warning',
+      message: '请先选择一个数据库!',
+    });
+    return;
+  }
+  try {
+    console.log(selectedDatabase.value)
+    const response = await axios.post('http://localhost:8080/choosesql/', { database: selectedDatabase.value },{ headers });
+    console.log(response.data)
+    if (response.data.status === '200') {
+      ElMessage({
+        type: 'success',
+        message: '数据库切换成功!',
+      });
+    } else {
+      ElMessage({
+        type: 'error',
+        message: '数据库切换失败!',
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    ElMessage({
+      type: 'error',
+      message: '请求处理时发生错误!',
+    });
+  }
+};
+
+
+
 // 观察tableData的变化，更新图表配置
 watch(tableData, () => {
   generateChartOption();
@@ -292,21 +528,3 @@ onUnmounted(() => {
 });
 
 </script>
-
-<style scoped>
-
-.header-buttons {
-  margin-bottom: 20px; /* 为下方内容留出空间 */
-}
-
-/* 可能需要覆盖Element UI的默认样式以达到最佳视觉效果 */
-.button-circle .el-icon {
-  font-size: 24px; /* 图标大小 */
-}
-
-    .chart {
-        height: 400px;
-        margin-top: 20px; /* 添加上下边距 */
-    }
-
-</style>
