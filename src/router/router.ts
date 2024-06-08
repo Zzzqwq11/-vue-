@@ -9,7 +9,7 @@ import register  from '../components/register.vue'
 import usersettings  from '../components/usersettings.vue'
 import help   from '../components/help.vue'
 import test   from '../components/test.vue'
-
+import history   from '../components/history.vue'
 const routes = [
     {
         path: '/file1',
@@ -26,7 +26,7 @@ const routes = [
     {
         path: '/',
         component:home
-        //,meta: { requiresAuth: true } // Ê¾Àý£º±íÊ¾´ËÒ³ÃæÐèÒªÑéÖ¤µÇÂ¼
+        //,meta: { requiresAuth: true } // Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½Ö¤ï¿½ï¿½Â¼
     },
     {
         path: '/service',
@@ -51,6 +51,10 @@ const routes = [
         {
         path: '/test',
         component:test
+    },
+    {
+        path: '/history',
+        component:history
     }
 ]
 
@@ -60,14 +64,14 @@ const router = createRouter({
     routes,
 })
 
-// // Â·ÓÉÊØÎÀ
+// // Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 // router.beforeEach((to) => {
-//    // ¸ù¾ÝtokenÅÐ¶ÏÊÇ·ñµÇÂ¼
+//    // ï¿½ï¿½ï¿½ï¿½tokenï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½Â¼
 //    let token = localStorage.getItem('Token');
-//    // ÓÐtokenµ«ÊÇ·ÃÎÊµÄÊÇµÇÂ¼Ò³ => Ç¿ÖÆÈ¥Ê×Ò³
+//    // ï¿½ï¿½tokenï¿½ï¿½ï¿½Ç·ï¿½ï¿½Êµï¿½ï¿½Çµï¿½Â¼Ò³ => Ç¿ï¿½ï¿½È¥ï¿½ï¿½Ò³
 //    if (token && to.path === '/login')
 //       return "/home";
-//   // Ã»ÓÐtokenµ«ÊÇ·ÃÎÊµÄÊÇÆäËû => Ç¿ÖÆÈ¥µÇÂ¼Ò³
+//   // Ã»ï¿½ï¿½tokenï¿½ï¿½ï¿½Ç·ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ => Ç¿ï¿½ï¿½È¥ï¿½ï¿½Â¼Ò³
 //    else if (!token && to.path !== '/login')
 //        return "/login";
 // });
