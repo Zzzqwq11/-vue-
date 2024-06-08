@@ -1,5 +1,4 @@
 <template>
-
   <div id="app">
     <header class="navbar">
       <el-menu
@@ -15,12 +14,14 @@
         <el-menu-item index="1"><RouterLink to="/"><el-icon><House /></el-icon>首页</RouterLink></el-menu-item>
         <el-menu-item index="2"><RouterLink to="/service"><el-icon><Service /></el-icon>服务</RouterLink></el-menu-item>
         <el-menu-item index="3"><RouterLink to="/contact"><el-icon><Connection /></el-icon>联系我们</RouterLink></el-menu-item>
-        <el-menu-item index="4" ><RouterLink to="/login"><el-icon><UserFilled /></el-icon>登录</RouterLink></el-menu-item>
-        <el-menu-item index="5" ><RouterLink to="/register"><el-icon><User /></el-icon>注册</RouterLink></el-menu-item>
+        <el-menu-item index="4"><RouterLink to="/history"><el-icon><Clock /></el-icon>查询历史</RouterLink></el-menu-item>
+        <el-menu-item index="5"><RouterLink to="/login"><el-icon><UserFilled /></el-icon>登录</RouterLink></el-menu-item>
+        <el-menu-item index="6"><RouterLink to="/register"><el-icon><User /></el-icon>注册</RouterLink></el-menu-item>
+        <el-menu-item index="7"><RouterLink to="/help"><el-icon><QuestionFilled /></el-icon>帮助</RouterLink></el-menu-item>
       </el-menu>
     </header>
     <main>
-        <router-view></router-view>
+      <router-view></router-view>
     </main>
     <footer class="text-center">
       &copy; 2024 data-co-pliot： 王宇祥；邹俊；蒋文强；孙兴；童鑫
@@ -29,8 +30,8 @@
 </template>
 
 <script setup>
-import { ElButton, ElIcon  } from 'element-plus';
-import { UserFilled, User,Service,House,Connection } from '@element-plus/icons-vue';
+import { ElButton, ElIcon } from 'element-plus';
+import { UserFilled, User, Service, House, Connection, Clock, QuestionFilled } from '@element-plus/icons-vue';
 </script>
 
 <style>
@@ -77,8 +78,6 @@ import { UserFilled, User,Service,House,Connection } from '@element-plus/icons-v
 
 .el-menu-item {
   margin: 0 10px; /* 左右各10px的间距，根据需要调整 */
-
-
 }
 
 main {
@@ -94,5 +93,4 @@ main {
   bottom: 0;
   width: 100%;
 }
-
 </style>
