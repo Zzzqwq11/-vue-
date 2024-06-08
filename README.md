@@ -45,6 +45,23 @@ Authorization: `Bearer ${token}`，其中const token = localStorage.getItem('tok
 - 已发送一个get请求到后端的API端点，可以显示用户信息
 - 已发送一个put请求到后端的API端点，可以修改用户信息
 - 登陆成功后，后端应该返回一个token，前端已存储在localStorage中
+
+> 历史记录页面
+- 登录进入之后，点击查询历史，进入查询历史
+- 已设置后端api
+- 以发送一个get请求到后端API端点, 可以显示用户的查询记录
+- 后端应返回的数据格式应该是一个 JSON 数组（列表），
+- 每个元素都是一个对象，包含 userID、queryID、queryContent 和 executionTime 四个字段
+- 例如下面这样
+[
+    { "userID": 1, "queryID": "Q123", "queryContent": "查询1", "executionTime": "2024-06-01 12:00:00" },
+    { "userID": 2, "queryID": "Q124", "queryContent": "查询2", "executionTime": "2024-06-02 13:00:00" },
+    { "userID": 3, "queryID": "Q125", "queryContent": "查询3", "executionTime": "2024-06-03 14:00:00" },
+    { "userID": 4, "queryID": "Q126", "queryContent": "查询4", "executionTime": "2024-06-04 15:00:00" }
+]
+- 然后点击删除按钮后, 以发送一个delete请求到后端API端点, 
+- 给后端一个请求体 data: { userID, queryID } ,即标识要删除的数据
+   
 ## 安装
 
 ```bash

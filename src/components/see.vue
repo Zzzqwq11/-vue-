@@ -59,7 +59,7 @@
 import { defineComponent } from 'vue';
 import axios from 'axios';
 
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
     import { use } from "echarts/core";
     import * as echarts from 'echarts';
@@ -77,6 +77,7 @@ import { useRouter } from 'vue-router';
 
 // 定义navigateTo方法
 const router = useRouter();
+const route = useRoute();
 const navigateTo = (path) => {
   router.push(path);
 };
@@ -251,7 +252,18 @@ onMounted(async () => {
     alert('Token not found, 请先登录.');
     return;  //没有token，提前终止请求
   }
-
+  const { queryContent, showAlert } = route.query;
+  if (queryContent) {
+    sql.value = queryContent;
+    
+  }
+  if (showAlert) {
+    ElMessage({
+      type: 'info',
+      message: '请选择一个数据库',
+      duration: 2000
+    });
+  }
   const headers = {
     'Content-Type': 'application/json',  // 指定请求体的媒体类型为 JSON，以便服务器知道如何解析请求内容
     Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
@@ -261,6 +273,7 @@ onMounted(async () => {
     console.log(response.data)
     if (response.data.status === '200') {
       availableDatabases.value = response.data.databases;
+      
     } else {
       // 如果status不是200，可以在这里处理错误情况
       ElMessage({
