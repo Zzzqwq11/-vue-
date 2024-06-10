@@ -25,13 +25,6 @@ Authorization: `Bearer ${token}`，其中const token = localStorage.getItem('tok
 ## 注册页面
 - 输入用户名，密码，邮箱进行注册
 
-
-<<<<<<< HEAD
-=======
-- 已传入后端参数status=200，表示登录成功，
-
->>>>>>> f8e0940009268420ca0baa58584f59795c121786
-
 ## 可视化页面
 > 大模型查询部分
 - 已设置后端api/query/
