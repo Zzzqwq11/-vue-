@@ -61,12 +61,10 @@
                     </el-select>
                     <!-- 切换数据库按钮 -->
                     <el-button type="primary" @click="switchDatabase">切换一个数据库</el-button>
-                    <el-input v-model="sql" placeholder="输入查询内容" @input="validateSql"></el-input>
+                    <el-input v-model="sql" placeholder="输入查询内容" ></el-input>
                     <el-button type="primary"
-                               :disabled="isSqlInvalid"
                                @click="sendQuery"
                                class="send-query-button">发送查询</el-button>
-                    <el-message v-if="sqlError" type="error">{{ sqlError }}</el-message>
                     <pre>{{ sql }}</pre>
                 </el-card>
             </el-col>
@@ -155,18 +153,6 @@
     };
 
     const sql = ref('');
-    const sqlError = ref('');
-    const isSqlInvalid = ref(false);
-    const validateSql = () => {
-        if (!sql.value.trim()) {
-            sqlError.value = 'SQL 输入不能为空';
-            alert('不能为空')
-            isSqlInvalid.value = true;
-        } else {
-            sqlError.value = '';
-            isSqlInvalid.value = false;
-        }
-    };
 
     const tableData = ref([]); // 假设tableData存储查询结果
     const tableHeaders = ref([]);
@@ -732,14 +718,19 @@
             alert('Token not found, 请先登录.');
             return;  //没有token，提前终止请求
         }
-
+        // 输入验证逻辑
+        if (!sql.value.trim()) {
+            ElMessage.error('输入内容不能为空'); // 显示错误消息
+            return; // 验证失败，直接返回，不执行后续查询逻辑
+        }
         const headers = {
             'Content-Type': 'application/json',  // 指定请求体的媒体类型为 JSON，以便服务器知道如何解析请求内容
             Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
         };
         try {
             console.log(sql.value)
-            const response = await axios.post('http://localhost:8080/query/', { user_input: sql.value }, { headers });
+            console.log(selectedDatabase)
+            const response = await axios.post('http://localhost:8080/query/', { user_input: sql.value,database:selectedDatabase }, { headers });
             console.log(response.data)
             const { status, sql_queries } = response.data;
             // 打印status和sql_queries
@@ -779,18 +770,7 @@
             alert('Token not found, 请先登录.');
             return;  //没有token，提前终止请求
         }
-        const { queryContent, showAlert } = route.query;
-        if (queryContent) {
-            sql.value = queryContent;
 
-        }
-        if (showAlert) {
-            ElMessage({
-                type: 'info',
-                message: '请选择一个数据库',
-                duration: 2000
-            });
-        }
         const headers = {
             'Content-Type': 'application/json',  // 指定请求体的媒体类型为 JSON，以便服务器知道如何解析请求内容
             Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份

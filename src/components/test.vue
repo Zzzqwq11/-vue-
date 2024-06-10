@@ -61,12 +61,10 @@
                     </el-select>
                     <!-- 切换数据库按钮 -->
                     <el-button type="primary" @click="switchDatabase">切换一个数据库</el-button>
-                    <el-input v-model="sql" placeholder="输入查询内容" @input="validateSql"></el-input>
+                    <el-input v-model="sql" placeholder="输入查询内容"></el-input>
                     <el-button type="primary"
-                               :disabled="isSqlInvalid"
                                @click="sendQuery"
                                class="send-query-button">发送查询</el-button>
-                    <el-message v-if="sqlError" type="error">{{ sqlError }}</el-message>
                     <pre>{{ sql }}</pre>
                 </el-card>
             </el-col>
@@ -158,19 +156,6 @@
     };
 
     const sql = ref('');
-    const sqlError = ref('');
-    const isSqlInvalid = ref(false);
-
-    const validateSql = () => {
-        if (!sql.value.trim()) {
-            sqlError.value = 'SQL 输入不能为空';
-            alert('不能为空')
-            isSqlInvalid.value = true;
-        } else {
-            sqlError.value = '';
-            isSqlInvalid.value = false;
-        }
-    };
 
     const tableData = ref([]);// 假设tableData存储查询结果，
     // 定义一个函数来生成表头信息
@@ -311,6 +296,11 @@
     };
     // 发送查询请求
     const sendQuery = async () => {
+        // 输入验证逻辑
+        if (!sql.value.trim()) {
+            ElMessage.error('输入内容不能为空'); // 显示错误消息
+            return; // 验证失败，直接返回，不执行后续查询逻辑
+        }
         const response = {
             "status": "200",
             "sql_queries": [
@@ -355,21 +345,18 @@
     const selectedDatabase = ref('');
 
     onMounted(async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert('Token not found, 请先登录.');
-            return;  //没有token，提前终止请求
-        }
 
-        const headers = {
-            'Content-Type': 'application/json',  // 指定请求体的媒体类型为 JSON，以便服务器知道如何解析请求内容
-            Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
-        };
-        try {
-            const response = await axios.get('http://localhost:8080/choosesql/', { headers });
-            console.log(response.data)
-            if (response.data.status === '200') {
-                availableDatabases.value = response.data.databases;
+
+            const response = {
+                "status": "200",
+                "databases": [
+                    "ai",
+                    "datacopilot",
+                ]
+            };
+            console.log(response)
+            if (response.status === '200') {
+                availableDatabases.value = response.databases;
 
             } else {
                 // 如果status不是200，可以在这里处理错误情况
@@ -378,14 +365,7 @@
                     message: '获取数据库列表时发生错误!',
                 });
             }
-        } catch (error) {
-            // 在这里处理请求失败的情况，例如网络问题
-            console.error(error);
-            ElMessage({
-                type: 'error',
-                message: '网络请求失败，请检查网络连接!',
-            });
-        }
+
     });
 
     // 切换数据库的方法
