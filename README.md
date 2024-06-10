@@ -12,8 +12,8 @@ Authorization: `Bearer ${token}`，其中const token = localStorage.getItem('tok
 
 
 
-> 登陆页面
-- 已设置后端api/login
+## 登陆页面
+- 已设置后端api/login/
 - 没有请求头 
 - 发送一个POST请求到后端的API端点，携带用户名和密码作为请求体。
 
@@ -22,9 +22,12 @@ Authorization: `Bearer ${token}`，其中const token = localStorage.getItem('tok
 
 - 登陆成功后，后端应该返回一个token，前端已存储在localStorage中
 
+## 注册页面
+- 输入用户名，密码，邮箱进行注册
 
-> 可视化页面
-## 大模型查询部分
+
+## 可视化页面
+> 大模型查询部分
 - 已设置后端api/query/
 - 请求头 已包含token
 - 发送一个POST请求到后端的API端点，将Vue实例中的sql变量的值作为user_input字段发送给服务器。
@@ -33,20 +36,24 @@ Authorization: `Bearer ${token}`，其中const token = localStorage.getItem('tok
 - 已解决动态渲染
 - 新增了数据库切换功能，根据后端返回的数据库列表来让用户选择要切换的数据库
 
+> 数据库切换部分
+- 前端已实现，获取数据库，供用户选择
 
-## 可视化图表部分
+
+
+> 可视化图表部分
 - 
-- 前端可以显示表格数据的图像可视化
-- 前端
+- 前端可以供用户选择可视化配置，图像类型和列名
+- 前端可以根据配置（最多显示三列），根据选择的1-3列，生成条形图或者饼图
 
-> 用户个人信息页面
+## 用户个人信息页面
 - 登录进入之后，点击个人设置，进入用户个人信息
 - 已设置后端api
 - 已发送一个get请求到后端的API端点，可以显示用户信息
 - 已发送一个put请求到后端的API端点，可以修改用户信息
 - 登陆成功后，后端应该返回一个token，前端已存储在localStorage中
 
-> 历史记录页面
+## 历史记录页面
 - 登录进入之后，点击查询历史，进入查询历史
 - 已设置后端api
 - 以发送一个get请求到后端API端点, 可以显示用户的查询记录
@@ -62,7 +69,7 @@ Authorization: `Bearer ${token}`，其中const token = localStorage.getItem('tok
 - 然后点击删除按钮后, 以发送一个delete请求到后端API端点, 
 - 给后端一个请求体 data: { userID, queryID } ,即标识要删除的数据
    
-## 安装
+# 安装
 
 ```bash
 npm install
