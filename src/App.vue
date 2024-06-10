@@ -49,22 +49,16 @@ const router = useRouter();
 
 // 模拟在组件挂载后检查用户是否登录
 const fetchUserProfile = async () => {
-  try {
     // 这里应该从 localStorage 或 sessionStorage 获取 token
     const token = localStorage.getItem('token');
 
     if (token) {
-      // 假设这是一个检查 token 有效性的 API 调用
-      const response = await axios.post('/api/check-token', { token });
-
-      if (response.data.success) {
+      
         isLoggedIn.value = true;
         username.value = response.data.user.username;
-      }
+      
     }
-  } catch (error) {
-    console.error('登录状态检查失败:', error);
-  }
+  
 };
 
 // 模拟登出方法
