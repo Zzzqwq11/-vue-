@@ -12,12 +12,11 @@
           <img src="@/assets/logo.png" alt="Logo" class="logo" />
         </div>
         <el-menu-item index="1"><RouterLink to="/"><el-icon><House /></el-icon>首页</RouterLink></el-menu-item>
-        <el-menu-item index="2"><RouterLink to="/service"><el-icon><Service /></el-icon>服务</RouterLink></el-menu-item>
-        <el-menu-item index="3"><RouterLink to="/contact"><el-icon><Connection /></el-icon>联系我们</RouterLink></el-menu-item>
+        <el-menu-item index="7"><RouterLink to="/help"><el-icon><QuestionFilled /></el-icon>帮助</RouterLink></el-menu-item>
         <el-menu-item index="4"><RouterLink to="/history"><el-icon><Clock /></el-icon>查询历史</RouterLink></el-menu-item>
         <el-menu-item index="5"><RouterLink to="/login"><el-icon><UserFilled /></el-icon>登录</RouterLink></el-menu-item>
         <el-menu-item index="6"><RouterLink to="/register"><el-icon><User /></el-icon>注册</RouterLink></el-menu-item>
-        <el-menu-item index="7"><RouterLink to="/help"><el-icon><QuestionFilled /></el-icon>帮助</RouterLink></el-menu-item>
+        <el-menu-item index="3"><RouterLink to="/contact"><el-icon><Connection /></el-icon>联系我们</RouterLink></el-menu-item>
       </el-menu>
     </header>
     <main>

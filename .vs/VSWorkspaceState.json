@@ -1,9 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\-vue-",
-    "\\-vue-\\src",
-    "\\-vue-\\src\\components"
+    "\\src",
+    "\\src\\components"
   ],
-  "PreviewInSolutionExplorer": false
+  "SelectedNode": "\\src\\components\\test.vue",
+  "PreviewInSolutionExplorer": true
 }
