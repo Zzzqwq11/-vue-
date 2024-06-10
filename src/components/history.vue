@@ -38,6 +38,7 @@ export default {
         const token = localStorage.getItem('token');
         if (!token) {
           alert('Token not found, 请先登录.');
+          router.push('login/');
           return;  //没有token，提前终止请求
         }
         const response = await axios.get('http://localhost:8080/history/', {

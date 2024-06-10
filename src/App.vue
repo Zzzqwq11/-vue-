@@ -12,11 +12,19 @@
           <img src="@/assets/logo.png" alt="Logo" class="logo" />
         </div>
         <el-menu-item index="1"><RouterLink to="/"><el-icon><House /></el-icon>首页</RouterLink></el-menu-item>
-        <el-menu-item index="7"><RouterLink to="/help"><el-icon><QuestionFilled /></el-icon>帮助</RouterLink></el-menu-item>
+        <el-menu-item index="9"><RouterLink to="/see"><el-icon><Search /></el-icon>可视化</RouterLink></el-menu-item>
         <el-menu-item index="4"><RouterLink to="/history"><el-icon><Clock /></el-icon>查询历史</RouterLink></el-menu-item>
-        <el-menu-item index="5"><RouterLink to="/login"><el-icon><UserFilled /></el-icon>登录</RouterLink></el-menu-item>
-        <el-menu-item index="6"><RouterLink to="/register"><el-icon><User /></el-icon>注册</RouterLink></el-menu-item>
+        <el-menu-item index="7"><RouterLink to="/help"><el-icon><QuestionFilled /></el-icon>帮助</RouterLink></el-menu-item>
         <el-menu-item index="3"><RouterLink to="/contact"><el-icon><Connection /></el-icon>联系我们</RouterLink></el-menu-item>
+        <el-menu-item v-if="!isLoggedIn" index="5"><RouterLink to="/login"><el-icon><UserFilled /></el-icon>登录</RouterLink></el-menu-item>
+        <el-menu-item v-if="!isLoggedIn" index="6"><RouterLink to="/register"><el-icon><User /></el-icon>注册</RouterLink></el-menu-item>
+        <el-menu-item v-if="isLoggedIn" index="7">
+          <span>欢迎你，{{ username }}</span>
+        </el-menu-item>
+        <el-menu-item v-if="isLoggedIn" index="8">
+          <span @click="logout"><el-icon><SwitchButton /></el-icon>登出</span>
+        </el-menu-item>
+        
       </el-menu>
     </header>
     <main>
@@ -29,8 +37,47 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+// 用于判断用户是否登录的状态
+const isLoggedIn = ref(false);
+// 用于存储用户名
+const username = ref('');
+const router = useRouter();
+
+
+// 模拟在组件挂载后检查用户是否登录
+const fetchUserProfile = async () => {
+  try {
+    // 这里应该从 localStorage 或 sessionStorage 获取 token
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      // 假设这是一个检查 token 有效性的 API 调用
+      const response = await axios.post('/api/check-token', { token });
+
+      if (response.data.success) {
+        isLoggedIn.value = true;
+        username.value = response.data.user.username;
+      }
+    }
+  } catch (error) {
+    console.error('登录状态检查失败:', error);
+  }
+};
+
+// 模拟登出方法
+const logout = () => {
+  isLoggedIn.value = false;
+  username.value = '';
+  // 清除 token
+  localStorage.removeItem('token');
+  // 添加跳转到登录页面逻辑
+  router.push('login/');
+};
 import { ElButton, ElIcon } from 'element-plus';
-import { UserFilled, User, Service, House, Connection, Clock, QuestionFilled } from '@element-plus/icons-vue';
+import { UserFilled, User, Service, House, Connection, Clock, QuestionFilled, Search, SwitchButton } from '@element-plus/icons-vue';
 </script>
 
 <style>
