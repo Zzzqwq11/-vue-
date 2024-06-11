@@ -736,7 +736,7 @@
         try {
             console.log(sql.value)
             console.log(selectedDatabase)
-            const response = await axios.post('http://localhost:8080/query/', { user_input: sql.value,database:selectedDatabase }, { headers });
+            const response = await axios.post('http://localhost:8080/query/', { user_input: sql.value,database:selectedDatabase.value }, { headers });
             console.log(response.data)
             const { status, sql_queries } = response.data;
             // 打印status和sql_queries

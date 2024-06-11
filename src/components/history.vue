@@ -40,12 +40,12 @@ export default {
           return;  //没有token，提前终止请求
         }
         const response = await axios.get('http://localhost:8080/history/',
-        //  {
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //     Authorization: `${token}`
-        //   }
-        // } 
+          {
+           headers: {
+             'Content-Type': 'application/json',
+             Authorization: `${token}`
+           }
+         } 
       );
         if (response.data.status === '200') {
           this.historyData = response.data.query_history;
