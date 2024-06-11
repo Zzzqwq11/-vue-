@@ -47,19 +47,41 @@ const username = ref('');
 const router = useRouter();
 
 
-// 模拟在组件挂载后检查用户是否登录
+// 在组件挂载后检查用户是否登录
 const fetchUserProfile = async () => {
-    // 这里应该从 localStorage 或 sessionStorage 获取 token
-    const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('Token not found, 请先登录.');
+    return;  // 没有token，提前终止请求
+  }
 
-    if (token) {
-      
-        isLoggedIn.value = true;
-        username.value = response.data.user.username;
-      
+  const headers = {
+    'Content-Type': 'application/json',  // 指定请求体的媒体类型为 JSON，以便服务器知道如何解析请求内容
+    Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
+  };
+
+  try {
+    const response = await axios.get('http://localhost:8080/UserCRUD/', { headers });
+    if (response.data.status === '200') {
+      // 获取用户名
+      const username = response.data.users[0].username;
+      // 更新isLoggedIn.value和username.value
+      isLoggedIn.value = true;
+      username.value = username;
+      // 存储用户名
+      localStorage.setItem('username', username);
+      // 设置用户信息
+      userProfile.value = response.data.users[0];
+      console.log(userProfile.value);
+    } else {
+      ElMessage.error('获取用户信息失败');
     }
-  
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    ElMessage.error('网络错误，请稍后重试');
+  }
 };
+
 
 // 模拟登出方法
 const logout = () => {

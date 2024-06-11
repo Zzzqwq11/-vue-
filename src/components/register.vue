@@ -92,7 +92,7 @@ const register = async () => {
   align-items: center;
   height: 100vh;
   //background-color: #f5f7fa;
-  background-image:  url('@/assets/login.jpg'); /* 替换为你的背景图片路径 */
+  background-image:  url('@/assets/cool-background.png'); /* 替换为你的背景图片路径 */
   background-size: 100% 100%; /* 背景图片随容器大小变化 */
   background-position: center center;
   background-repeat: no-repeat;
