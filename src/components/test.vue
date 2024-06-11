@@ -109,6 +109,7 @@
                                 </div>
                             </el-col>
                         </el-row>
+                        <el-button type="primary" @click="clearSelectedColumns" v-if="tableData.length">清除所有列</el-button>
                     </div>
                 </el-card>
             </el-col>
@@ -280,6 +281,9 @@
             }
         }
     };
+    function clearSelectedColumns() {
+        selectedColumnsForChart.value = []; // 清空选择的列名数组
+    }
 
     const chartType = ref(''); // 不默认选择任何图表类型
     const handleChartTypeChange = () => {
@@ -296,6 +300,7 @@
     };
     // 发送查询请求
     const sendQuery = async () => {
+        selectedColumnsForChart.value = []; // 清空选择的列名数组
         // 输入验证逻辑
         if (!sql.value.trim()) {
             ElMessage.error('输入内容不能为空'); // 显示错误消息

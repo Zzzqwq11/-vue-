@@ -109,6 +109,7 @@
                                 </div>
                             </el-col>
                         </el-row>
+                        <el-button type="primary" @click="clearSelectedColumns" v-if="tableData.length">清除所有列</el-button>
                     </div>
                 </el-card>
             </el-col>
@@ -132,7 +133,7 @@
     import { defineComponent } from 'vue';
     import axios from 'axios';
 
-    import { useRouter } from 'vue-router';
+    import { useRouter, useRoute } from 'vue-router';
 
     import { use } from "echarts/core";
     import * as echarts from 'echarts';
@@ -148,6 +149,7 @@
     import { ref, provide, watch, onMounted, onUnmounted, computed, nextTick } from "vue";
     import { ElMessage } from 'element-plus'
     const router = useRouter();
+    const route = useRoute();
     const navigateTo = (path) => {
         router.push(path);
     };
@@ -694,7 +696,9 @@
             }
         }
     };
-
+    function clearSelectedColumns() {
+        selectedColumnsForChart.value = []; // 清空选择的列名数组
+    }
     const chartType = ref(''); // 不默认选择任何图表类型
     const handleChartTypeChange = () => {
         if (chartType.value === 'bar' || chartType.value === 'pie') {
@@ -719,6 +723,7 @@
             router.push('login/');
             return;  //没有token，提前终止请求
         }
+        selectedColumnsForChart.value = []; // 清空选择的列名数组
         // 输入验证逻辑
         if (!sql.value.trim()) {
             ElMessage.error('输入内容不能为空'); // 显示错误消息
@@ -772,7 +777,18 @@
             router.push('login/');
             return;  //没有token，提前终止请求
         }
-
+        const { querycontent, showAlert } = route.query;
+        if (querycontent) {
+            sql.value = querycontent;
+            
+        }
+        if (showAlert) {
+            ElMessage({
+            type: 'info',
+            message: '请选择一个数据库',
+            duration: 2000
+            });
+        }
         const headers = {
             'Content-Type': 'application/json',  // 指定请求体的媒体类型为 JSON，以便服务器知道如何解析请求内容
             Authorization: `${token}`            // 添加认证信息，用于验证请求者的身份
