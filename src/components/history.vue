@@ -32,13 +32,11 @@ export default {
     this.fetchHistoryData();
   },
   methods: {
-  
     async fetchHistoryData() {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
           alert('Token not found, 请先登录.');
-          router.push('login/');
           return;  //没有token，提前终止请求
         }
         const response = await axios.get('http://localhost:8080/history/', {
@@ -48,8 +46,8 @@ export default {
           }
         });
         if (response.data.status === 200) {
-          this.historyData = response.data;
-          this.historyData.sort((a, b) => new Date(b.executionTime) - new Date(a.executionTime));
+          this.historyData = response.query_history;
+          this.historyData.sort((a, b) => new Date(b.formatted_querytime) - new Date(a.formatted_querytime));
         }
       } catch (error) {
         console.error('获取查询历史记录失败', error);
