@@ -9,8 +9,8 @@
       <el-table-column prop="formatted_querytime" label="执行时间" width="180" align="center"></el-table-column>
       <el-table-column label="操作" width="200" align="center">
         <template #default="scope">
-          <el-button @click="deleteRow(scope.row.userID, scope.row.queryID, scope.$index)" type="danger" size="mini">删除</el-button>
-          <el-button @click="reexecuteQuery(scope.row.queryContent)" type="primary" size="mini">重新执行</el-button>
+          <el-button @click="deleteRow(scope.row.userid, scope.row.queryid, scope.$index)" type="danger" size="mini">删除</el-button>
+          <el-button @click="reexecuteQuery(scope.row.querycontent)" type="primary" size="mini">重新执行</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -39,14 +39,15 @@ export default {
           alert('Token not found, 请先登录.');
           return;  //没有token，提前终止请求
         }
-        const response = await axios.get('http://localhost:8080/history/', {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `${token}`
-          }
-        }
+        const response = await axios.get('http://localhost:8080/history/',
+        //  {
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //     Authorization: `${token}`
+        //   }
+        // } 
       );
-        if (response.data.status === 200) {
+        if (response.data.status === '200') {
           this.historyData = response.data.query_history;
           console(this.historyData)
           this.historyData.sort((a, b) => new Date(b.formatted_querytime) - new Date(a.formatted_querytime));
@@ -56,7 +57,7 @@ export default {
       }
     },
 
-    async deleteRow(userID, queryID, index) {
+    async deleteRow(userid, queryid, index) {
       try {
         const token = localStorage.getItem('token');
         const response = await axios.delete('http://localhost:8080/history/', {
@@ -64,17 +65,17 @@ export default {
             'Content-Type': 'application/json',
             Authorization: `${token}`
           },
-          data: { userID, queryID }
+          data: { userid, queryid }
         });
-        if (response.status === 200) {
+        if (response.status === '200') {
           this.historyData.splice(index, 1);
         }
       } catch (error) {
         console.error('删除查询记录失败', error);
       }
     },
-    reexecuteQuery(queryContent) {
-      this.$router.push({ path: '/see', query: { queryContent, showAlert: true } });
+    reexecuteQuery(querycontent) {
+      this.$router.push({ path: '/see', query: { querycontent, showAlert: true } });
     }
   }
 }

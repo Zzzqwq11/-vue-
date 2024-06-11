@@ -777,9 +777,9 @@
             router.push('login/');
             return;  //没有token，提前终止请求
         }
-        const { queryContent, showAlert } = route.query;
-        if (queryContent) {
-            sql.value = queryContent;
+        const { querycontent, showAlert } = route.query;
+        if (querycontent) {
+            sql.value = querycontent;
             
         }
         if (showAlert) {
